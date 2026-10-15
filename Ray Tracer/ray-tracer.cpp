@@ -106,7 +106,7 @@ int main()
 
   Triangle triangle = Triangle{Vector3{-1, 1, 0}, Vector3{-1, -1, 0}, Vector3{1, -1, 0}};
   
-  Vector3 background_color = Vector3{255, 0, 255};
+  Vector3 background_color = Vector3{255, 255, 255};
 
   /// Loop over each line doing down
   for (int y = 0; y < h; y++)
@@ -169,11 +169,14 @@ int main()
         //Im not in the triangle
 
       }
-      else{
+      else{ ///try to implement a shader inside this
         //i am in triangle
-        r = 128;
-        g = 128;
-        b = 128;
+
+
+
+        r = 0 * u + 0 * v + 0 * a;
+        g = 255 * u + 0 * v + 0 * a;
+        b = 0 * u + 0 * v + 0 * a;
       }
 
       
