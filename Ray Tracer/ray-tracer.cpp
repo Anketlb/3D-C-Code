@@ -171,12 +171,11 @@ int main()
       }
       else{ ///try to implement a shader inside this
         //i am in triangle
+        //u is up left, v is bot left, and a is bot right
 
-
-
-        r = 0 * u + 0 * v + 0 * a;
-        g = 255 * u + 0 * v + 0 * a;
-        b = 0 * u + 0 * v + 0 * a;
+        r = 255 * u + 0 * v + 0 * a;
+        g = 0 * u + 255 * v + 0 * a;
+        b = 0 * u + 0 * v + 255 * a;
       }
 
       
