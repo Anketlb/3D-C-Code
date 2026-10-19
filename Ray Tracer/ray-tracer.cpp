@@ -86,6 +86,9 @@ public:
   Vector3 one, two, three;
 };
 
+
+void ColorToNewColor();
+
 int main()
 {
   /// Example of how to debug with couts.
@@ -133,7 +136,8 @@ int main()
 
 
       Vector3 target{
-          x / (float)w * 2 - 1, -(y / (float)h * 2 - 1), 0};
+          x / (float)w * 2 - 1, -(y / (float)h * 2 - 1), 0
+        };
 
       Vector3 ray = (target - camera_origin).normalize();
 
@@ -172,10 +176,20 @@ int main()
       else{ ///try to implement a shader inside this
         //i am in triangle
         //u is up left, v is bot left, and a is bot right
+        //The terms U,V, and A are positional only
+        //0 * u + 0 * v + 0 * a
+        r = 255 * u * 2 /v /a*30;
+        g = 255 * v *.5;
+        b = 255 * a * 2;
 
-        r = 255 * u + 0 * v + 0 * a;
-        g = 0 * u + 255 * v + 0 * a;
-        b = 0 * u + 0 * v + 255 * a;
+        
+        if(x > 320 || y < 320){
+          r = 255 * u;
+          g = 255 * v;
+          b = 255 * a;
+        }
+
+
       }
 
       
@@ -190,4 +204,8 @@ int main()
   /// Write the final image as a png
   stbi_write_png("image.png", w, h, 3, pixels, w * 3);
   return 0;
+}
+
+void ColorToNewColor(unsigned char r,unsigned char g,unsigned char b){
+
 }
