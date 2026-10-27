@@ -4,13 +4,11 @@
 
 /// Uncomment these lines if you want to debug using couts
 #include <iostream>
-#include <fstream>
 #include <vector>
-#include <string>
 #include "Vector3.hpp"
 #include "Triangle.hpp"
+#include "file_util.h"
 using namespace std;
-
 
 void ColorToNewColor();
 
@@ -135,25 +133,24 @@ int main()
     }
   }
 
-  string hamilton;
+  // string hamilton;
 
-  ifstream EyeBalls("TinyTri.obj");
+  // ifstream EyeBalls("TinyTri.obj");
   ofstream pencil("test.txt");
-  string VectorIndex[3];
+  // string VectorIndex[3];
+  readLines("TinyTri.obj");
 
-  while (getline(EyeBalls, hamilton))
-  {
-    if (hamilton[0] == 'v' || hamilton[0] == 'f')
-    {
-      for(int i = 1; i < hamilton.size(); i++){
-        cout << hamilton[i];
-      }
-      // EyeBalls >> ws >> VectorIndex.push_back(hamilton);
-      pencil << hamilton << "\n";
-    }
-  }
+  //stof() = string to float, the actual values
 
-  EyeBalls.close();
+  // while (getline(EyeBalls, hamilton))
+  // {
+  //   if (hamilton[0] == 'v' || hamilton[0] == 'f')
+  //   {
+  //     pencil << hamilton << "\n";
+  //   }
+  // }
+
+  // EyeBalls.close();
   pencil.close();
 
   /// Write the final image as a png

@@ -21,13 +21,13 @@ struct Vector3
   Vector3 normalize();
 };
 
-inline Vector3 operator+(Vector3 lhs, const Vector3 &rhs);
+Vector3 operator+(Vector3 lhs, const Vector3 &rhs);
 
-inline Vector3 operator-(Vector3 lhs, const Vector3 &rhs);
+Vector3 operator-(Vector3 lhs, const Vector3 &rhs);
 
-inline Vector3 operator*(Vector3 lhs, const float rhs);
+Vector3 operator*(Vector3 lhs, const float rhs);
 
-inline std::ostream &operator<<(std::ostream &os, const Vector3 &v);
+std::ostream &operator<<(std::ostream &os, const Vector3 &v);
 
 
 #endif

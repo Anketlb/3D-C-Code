@@ -1,13 +1,13 @@
 #include "Vector3.hpp"
 
-Vector3 &Vector3::operator+=(const Vector3 &rhs)
+Vector3& Vector3::operator+=(const Vector3 &rhs)
 {
     x += rhs.x;
     y += rhs.y;
     z += rhs.z;
     return *this;
 }
-Vector3 &Vector3::operator-=(const Vector3 &rhs)
+Vector3& Vector3::operator-=(const Vector3 &rhs)
 {
     x -= rhs.x;
     y -= rhs.y;
@@ -15,7 +15,7 @@ Vector3 &Vector3::operator-=(const Vector3 &rhs)
     return *this;
 }
 
-Vector3 &Vector3::operator*=(const float rhs)
+Vector3& Vector3::operator*=(const float rhs)
 {
     x *= rhs;
     y *= rhs;
