@@ -1,8 +1,6 @@
 #ifndef VECTOR3_4620
 #define VECTOR3_4620
 
-
-
 #include <iostream>
 #include <cmath>
 
