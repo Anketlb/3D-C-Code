@@ -11,8 +11,6 @@
 #include "file_util.h"
 using namespace std;
 
-void ColorToNewColor();
-
 /// Width of the final image
 const int w = 640;
 
@@ -22,10 +20,32 @@ const int h = 640;
 /// The 1d array for storing the pixel we have generated
 unsigned char pixels[w * h * 3];
 
-Triangle triangle = Triangle{Vector3{-1, 1, 0}, Vector3{-1, -1, 0}, Vector3{1, -1, 0}};
-Triangle triangle2 = Triangle{Vector3{-1, 1, .5}, Vector3{-1, -1, -.5}, Vector3{1, -1, .5}};
+// left wall
+Triangle triangle01 = Triangle{Vector3{-1, 1, -2}, Vector3{-1, 1, -1}, Vector3{-1, -1, -2}};
+Triangle triangle02 = Triangle{Vector3{-1, 1, -1}, Vector3{-1, -1, -1}, Vector3{-1, -1, -2}};
 
-vector<Triangle> triangles = {triangle, triangle2};
+// Right Wall
+Triangle triangle03 = Triangle{Vector3{1, 1, -1}, Vector3{1, 1, -2}, Vector3{1, -1, -2}};
+Triangle triangle04 = Triangle{Vector3{1, -1, -1}, Vector3{1, 1, -1}, Vector3{1, -1, -2}};
+
+// Top Wall
+Triangle triangle05 = Triangle{Vector3{-1, 1, -1}, Vector3{-1, 1, -2}, Vector3{1, 1, -2}};
+Triangle triangle06 = Triangle{Vector3{1, 1, -1}, Vector3{-1, 1, -1}, Vector3{1, 1, -2}};
+
+// Bottom Wall
+Triangle triangle07 = Triangle{Vector3{-1, -1, -2}, Vector3{-1, -1, -1}, Vector3{1, -1, -2}};
+Triangle triangle08 = Triangle{Vector3{-1, -1, -1}, Vector3{1, -1, -1}, Vector3{1, -1, -2}};
+
+// Back Wall
+Triangle triangle09 = Triangle{Vector3{-1, 1, -2}, Vector3{-1, -1, -2}, Vector3{1, -1, -2}};
+Triangle triangle10 = Triangle{Vector3{1, 1, -2}, Vector3{-1, 1, -2}, Vector3{1, -1, -2}};
+
+vector<Triangle> triangles = {
+    triangle01, triangle02,
+    triangle03, triangle04,
+    triangle05, triangle06,
+    triangle07, triangle08,
+    triangle09, triangle10};
 
 Vector3 background_color = Vector3{255, 255, 255};
 
@@ -73,17 +93,13 @@ float trace_ray_distance(Vector3 origin, Vector3 direction)
     }
     else
     { /// try to implement a shader inside this
-      // i am in triangle
-      // u is up left, v is bot left, and a is bot right
-      // The terms U,V, and A are positional only
-      // 0 * u + 0 * v + 0 * a
       closest_t = t;
     }
   }
   return closest_t;
 }
 
-Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2000)
+Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
 {
   Vector3 color = Vector3{background_color.x, background_color.y, background_color.z};
   if (bounces <= 0)
@@ -138,7 +154,9 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2000)
       closest_t = t;
 
       Vector3 base_color = Vector3{255, 255, 255};
-      Vector3 light_direction = Vector3{.5, 1, .5}.normalize();
+
+      // 1st is x Right+ to Left- , 2nd is y goes up+ or down-, 3rd is z Forward or Backward
+      Vector3 light_direction = Vector3{0, 0, 0}.normalize();
 
       Vector3 ambient = base_color * .1;
       Vector3 normal = p.normalize();
@@ -153,13 +171,13 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2000)
 
       Vector3 reflective = Vector3{0, 0, 0};
 
-      if (true)
-      {
-        Vector3 reflective_direction = direction - normal * 2 * normal.dot(direction);
-        reflective = trace_ray(collision_point, reflective_direction, bounces - 1) * .5;
-        diffuse *= .5;
-        ambient *= .5;
-      }
+      // if (true)
+      // {
+      //   Vector3 reflective_direction = direction - normal * 2 * normal.dot(direction);
+      //   reflective = trace_ray(collision_point, reflective_direction, bounces - 1) * .5;
+      //   diffuse *= .5;
+      //   ambient *= .5;
+      // }
 
       Vector3 _color = ambient + diffuse + reflective;
       color = _color;
@@ -170,7 +188,6 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2000)
 
 int main()
 {
-
   // how to ray trace??
   Vector3 camera_origin = Vector3{0, 0, 1}; // x, y, z
   Vector3 camera_look_at = Vector3{0, 0, 0};
@@ -211,18 +228,66 @@ int main()
     }
   }
 
-// string hamilton;
+  ofstream pencil("test.txt");
+  vector<string> book = readLines("TinyTri.obj");
+  vector<vector<double>> index = {};
+  vector<vector<double>> texture = {};
+  vector<vector<double>> normal = {};
+  vector<vector<int>> face = {};
+  int casenum;
 
-ofstream pencil("test.txt");
-readLines("TinyTri.obj");
+  // iterators are neat: we can go through file
+  for (auto scan = book.begin(); scan != book.end(); ++scan)
+  {                                          // scan through the book one line at a time
+    vector<string> word = split(*scan, ' '); // split what you see into single words by spaces
+    // pencil << *scan << "\n"; == pencil << scan[0];
+    if (word[0] == "v")
+    {
+      vector<double> chest = {}; // set up temp vector to shove into real vector
+      for (int i = 1; i < word.size(); i++)
+      {                           // take element 1
+        double a = stod(word[i]); // turn element 1 into a double
+        chest.push_back((a));     // put element 1 into Temp Vector
+      }
+      index.push_back(chest); // push Temp Vector into actual Vector
+    }
+    if (word[0] == "vn")
+    { // find every word that starts with vn
+      vector<double> chest = {}; // set up temp vector to shove into real vector
+      for (int i = 1; i < word.size(); i++)
+      {                           // take element 1
+        double a = stod(word[i]); // turn element 1 into a double
+        chest.push_back((a));     // put element 1 into Temp Vector
+      }
+      texture.push_back(chest);
+    }
+    if (word[0] == "vt")
+    { // find every word that starts with vt
+      vector<double> chest = {}; // set up temp vector to shove into real vector
+      for (int i = 1; i < word.size(); i++)
+      {                           // take element 1
+        double a = stod(word[i]); // turn element 1 into a double
+        chest.push_back((a));     // put element 1 into Temp Vector
+      }
+      normal.push_back(chest);
+    }
+    if (word[0] == "f"){
+      vector<int> chest = {};
+      pencil << word[1];
+      for (int i = 1; i < word.size(); i++){
+        vector<string> letter = split(word[i], '/');
+        for (int j = 0; j < letter.size(); j++){
+          int a = stoi(letter[j]);
+          chest.push_back(a);
+        }
+      }
+      face.push_back(chest);
+    }
+  }
 
-pencil.close();
+  pencil.close();
 
-/// Write the final image as a png
-stbi_write_png("image.png", w, h, 3, pixels, w * 3);
-return 0;
-}
-
-void ColorToNewColor(unsigned char r, unsigned char g, unsigned char b)
-{
+  /// Write the final image as a png
+  stbi_write_png("image.png", w, h, 3, pixels, w * 3);
+  return 0;
 }
