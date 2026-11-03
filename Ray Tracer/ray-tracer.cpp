@@ -156,7 +156,7 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
       Vector3 base_color = Vector3{255, 255, 255};
 
       // 1st is x Right+ to Left- , 2nd is y goes up+ or down-, 3rd is z Forward or Backward
-      Vector3 light_direction = Vector3{0, 0, 0}.normalize();
+      Vector3 light_direction = Vector3{1, 1, 2}.normalize();
 
       Vector3 ambient = base_color * .1;
       Vector3 normal = p.normalize();
@@ -164,7 +164,7 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
       float strength = max(0.f, light_direction.dot(normal));
 
       Vector3 diffuse = base_color * strength;
-      if (trace_ray_distance(collision_point, light_direction) != INFINITY)
+      if (trace_ray_distance(collision_point + light_direction*.00001, light_direction) != INFINITY)
       {
         diffuse = Vector3{0, 0, 0};
       }
@@ -228,13 +228,12 @@ int main()
     }
   }
 
-  ofstream pencil("test.txt");
+  // ofstream pencil("test.txt");
   vector<string> book = readLines("TinyTri.obj");
   vector<vector<double>> index = {};
   vector<vector<double>> texture = {};
   vector<vector<double>> normal = {};
   vector<vector<int>> face = {};
-  int casenum;
 
   // iterators are neat: we can go through file
   for (auto scan = book.begin(); scan != book.end(); ++scan)
@@ -273,7 +272,7 @@ int main()
     }
     if (word[0] == "f"){
       vector<int> chest = {};
-      pencil << word[1];
+      // pencil << word[1];
       for (int i = 1; i < word.size(); i++){
         vector<string> letter = split(word[i], '/');
         for (int j = 0; j < letter.size(); j++){
@@ -285,7 +284,7 @@ int main()
     }
   }
 
-  pencil.close();
+  // pencil.close();
 
   /// Write the final image as a png
   stbi_write_png("image.png", w, h, 3, pixels, w * 3);
