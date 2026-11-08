@@ -21,31 +21,12 @@ const int h = 640;
 unsigned char pixels[w * h * 3];
 
 // left wall
-Triangle triangle01 = Triangle{Vector3{-1, 1, -2}, Vector3{-1, 1, -1}, Vector3{-1, -1, -2}};
-Triangle triangle02 = Triangle{Vector3{-1, 1, -1}, Vector3{-1, -1, -1}, Vector3{-1, -1, -2}};
+// Triangle triangle0f = Triangle{face[0],face[1],face[2]};
+// Triangle triangle0f = Triangle{[ index[1], texture[1], normal[1] ], [ index[2], texture[2], normal[1] ], [ index[3], texture[3], normal[1] ]};
+// Triangle triangle0f = Triangle{[ index[i-1], texture[i-1], normal[i-1] ], [ index[i-1], texture[i-1], normal[i-1] ], [ index[i-1], texture[i-1], normal[i-1] ]};
 
-// Right Wall
-Triangle triangle03 = Triangle{Vector3{1, 1, -1}, Vector3{1, 1, -2}, Vector3{1, -1, -2}};
-Triangle triangle04 = Triangle{Vector3{1, -1, -1}, Vector3{1, 1, -1}, Vector3{1, -1, -2}};
-
-// Top Wall
-Triangle triangle05 = Triangle{Vector3{-1, 1, -1}, Vector3{-1, 1, -2}, Vector3{1, 1, -2}};
-Triangle triangle06 = Triangle{Vector3{1, 1, -1}, Vector3{-1, 1, -1}, Vector3{1, 1, -2}};
-
-// Bottom Wall
-Triangle triangle07 = Triangle{Vector3{-1, -1, -2}, Vector3{-1, -1, -1}, Vector3{1, -1, -2}};
-Triangle triangle08 = Triangle{Vector3{-1, -1, -1}, Vector3{1, -1, -1}, Vector3{1, -1, -2}};
-
-// Back Wall
-Triangle triangle09 = Triangle{Vector3{-1, 1, -2}, Vector3{-1, -1, -2}, Vector3{1, -1, -2}};
-Triangle triangle10 = Triangle{Vector3{1, 1, -2}, Vector3{-1, 1, -2}, Vector3{1, -1, -2}};
-
-vector<Triangle> triangles = {
-    triangle01, triangle02,
-    triangle03, triangle04,
-    triangle05, triangle06,
-    triangle07, triangle08,
-    triangle09, triangle10};
+// Triangle triangle01 = Triangle{Vector3{-1, 1, -2}, Vector3{-1, 1, -1}, Vector3{-1, -1, -2}};
+vector<Triangle> triangles = {};
 
 Vector3 background_color = Vector3{255, 255, 255};
 
@@ -164,7 +145,7 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
       float strength = max(0.f, light_direction.dot(normal));
 
       Vector3 diffuse = base_color * strength;
-      if (trace_ray_distance(collision_point + light_direction*.00001, light_direction) != INFINITY)
+      if (trace_ray_distance(collision_point + light_direction * .00001, light_direction) != INFINITY)
       {
         diffuse = Vector3{0, 0, 0};
       }
@@ -192,6 +173,133 @@ int main()
   Vector3 camera_origin = Vector3{0, 0, 1}; // x, y, z
   Vector3 camera_look_at = Vector3{0, 0, 0};
   Vector3 camera_up = Vector3{0, 1, 0};
+  vector<string> book = readLines("TinyTri.obj");
+  vector<vector<float>>index = {};
+  vector<vector<float>> texture = {};
+  vector<vector<float>> normal = {};
+  vector<vector<vector<int>>> face = {};
+
+  
+  // iterators are neat: we can go through file
+  for (auto scan = book.begin(); scan != book.end(); ++scan)
+  {                                          // scan through the book one line at a time
+    vector<string> word = split(*scan, ' '); // split what you see into single words by spaces
+    // pencil << *scan << "\n"; == pencil << scan[0];
+    if (word[0] == "v")
+    {
+      vector<float> chest = {}; // set up temp vector to shove into real vector
+      for (int i = 1; i < word.size(); i++)
+      {                           // take element 1
+        float a = stof(word[i]); // turn element 1 into a double
+        chest.push_back((a));     // put element 1 into Temp Vector
+      }
+      index.push_back(chest); // push Temp Vector into actual Vector
+    }
+    if (word[0] == "vn")
+    {                            // find every word that starts with vn
+      vector<float> chest = {}; // set up temp vector to shove into real vector
+      for (int i = 1; i < word.size(); i++)
+      {                           // take element 1
+        float a = stof(word[i]); // turn element 1 into a double
+        chest.push_back((a));     // put element 1 into Temp Vector
+      }
+      normal.push_back(chest);
+    }
+    if (word[0] == "vt")
+    {                            // find every word that starts with vt
+      vector<float> chest = {}; // set up temp vector to shove into real vector
+      for (int i = 1; i < word.size(); i++)
+      {                           // take element 1
+        float a = stof(word[i]); // turn element 1 into a double
+        chest.push_back((a));     // put element 1 into Temp Vector
+      }
+      texture.push_back(chest);
+    }
+    if (word[0] == "f")
+    {
+      vector<string> chest = {};
+      vector<vector<int>> cavern = {};
+      for (int i = 1; i < word.size(); i++){ // go through an f line and split by spaces
+        chest.push_back(word[i]);
+      }
+      for (int x = 0; x < chest.size(); x++){
+          vector<int> hand = {};
+          vector<string> letter = split(chest[x], '/');
+          for (int j = 0; j < letter.size(); j++){
+            int a = stoi(letter[j]);
+            hand.push_back(a);
+            // pencil << letter[j] << "\n";
+        }
+          cavern.push_back(hand);
+        }
+        face.push_back(cavern);
+    }
+  }
+
+  for (int t = 0; t < face.size(); t++){ // face[0] = the entire line
+    for (int c = 0; c < face[t].size(); c++){ // face[0][0] = first corner
+      for (int v = 0; v < face[t][c].size(); v++){ // face[0][0][0] = first value
+        int value = face[t][c][v];
+        vector<Vector3> corner_1 = {};
+        vector<float> corner_2 = {};
+        vector<float> corner_3 = {};
+        if(c == 0){ // Corner 1
+          //Index key
+          if(v == 0){
+            int index_key = value - 1;
+            corner_1.push_back((Vector3)index[index_key]);
+          }
+          //Texture key
+          if(v == 1){
+            int Texture_key = value - 1;
+            corner_1.push_back(texture[Texture_key]);
+          }
+          //Normal key
+          if(v == 2){
+            int Normal_key = value - 1;
+            corner_1.push_back(normal[Normal_key]);
+          }
+        }
+        if(c == 1){ // Corner 2
+          //Index key
+          if(v == 0){
+            int index_key = value - 1;
+            corner_2.push_back(index_key);
+          }
+          //Texture key
+          if(v == 1){
+            int Texture_key = value - 1;
+            corner_2.push_back(Texture_key);
+          }
+          //Normal key
+          if(v == 2){
+            int Normal_key = value - 1;
+            corner_2.push_back(Normal_key);
+          }
+        }
+        if(c == 2){ // Corner 3
+           //Index key
+          if(v == 0){
+            int index_key = value - 1;
+            corner_3.push_back(index_key);
+          }
+          //Texture key
+          if(v == 1){
+            int Texture_key = value - 1;
+            corner_3.push_back(Texture_key);
+          }
+          //Normal key
+          if(v == 2){
+            int Normal_key = value - 1;
+            corner_3.push_back(Normal_key);
+          }
+        }
+        // Triangle triangle = Triangle{corner_1, corner_2, corner_3};
+      }
+    }
+  }
+
+
 
   /// Loop over each line doing down
   for (int y = 0; y < h; y++)
@@ -228,65 +336,23 @@ int main()
     }
   }
 
-  // ofstream pencil("test.txt");
-  vector<string> book = readLines("TinyTri.obj");
-  vector<vector<double>> index = {};
-  vector<vector<double>> texture = {};
-  vector<vector<double>> normal = {};
-  vector<vector<int>> face = {};
 
-  // iterators are neat: we can go through file
-  for (auto scan = book.begin(); scan != book.end(); ++scan)
-  {                                          // scan through the book one line at a time
-    vector<string> word = split(*scan, ' '); // split what you see into single words by spaces
-    // pencil << *scan << "\n"; == pencil << scan[0];
-    if (word[0] == "v")
-    {
-      vector<double> chest = {}; // set up temp vector to shove into real vector
-      for (int i = 1; i < word.size(); i++)
-      {                           // take element 1
-        double a = stod(word[i]); // turn element 1 into a double
-        chest.push_back((a));     // put element 1 into Temp Vector
-      }
-      index.push_back(chest); // push Temp Vector into actual Vector
-    }
-    if (word[0] == "vn")
-    { // find every word that starts with vn
-      vector<double> chest = {}; // set up temp vector to shove into real vector
-      for (int i = 1; i < word.size(); i++)
-      {                           // take element 1
-        double a = stod(word[i]); // turn element 1 into a double
-        chest.push_back((a));     // put element 1 into Temp Vector
-      }
-      texture.push_back(chest);
-    }
-    if (word[0] == "vt")
-    { // find every word that starts with vt
-      vector<double> chest = {}; // set up temp vector to shove into real vector
-      for (int i = 1; i < word.size(); i++)
-      {                           // take element 1
-        double a = stod(word[i]); // turn element 1 into a double
-        chest.push_back((a));     // put element 1 into Temp Vector
-      }
-      normal.push_back(chest);
-    }
-    if (word[0] == "f"){
-      vector<int> chest = {};
-      // pencil << word[1];
-      for (int i = 1; i < word.size(); i++){
-        vector<string> letter = split(word[i], '/');
-        for (int j = 0; j < letter.size(); j++){
-          int a = stoi(letter[j]);
-          chest.push_back(a);
-        }
-      }
-      face.push_back(chest);
-    }
-  }
-
-  // pencil.close();
+  
 
   /// Write the final image as a png
   stbi_write_png("image.png", w, h, 3, pixels, w * 3);
   return 0;
 }
+
+// vector<int> chest = {};
+//       // pencil << word[1];
+//       for (int i = 1; i < word.size(); i++)
+//       {
+//         vector<string> letter = split(word[i], '/');
+//         for (int j = 0; j < letter.size(); j++)
+//         {
+//           int a = stoi(letter[j]);
+//           chest.push_back(a);
+//         }
+//       }
+//       face.push_back(chest);
