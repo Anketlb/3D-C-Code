@@ -240,14 +240,14 @@ int main()
     for (int c = 0; c < face[t].size(); c++){ // face[0][0] = first corner
       for (int v = 0; v < face[t][c].size(); v++){ // face[0][0][0] = first value
         int value = face[t][c][v];
-        vector<Vector3> corner_1 = {};
+        vector<float> corner_1 = {};
         vector<float> corner_2 = {};
         vector<float> corner_3 = {};
         if(c == 0){ // Corner 1
           //Index key
           if(v == 0){
             int index_key = value - 1;
-            corner_1.push_back((Vector3)index[index_key]);
+            corner_1.push_back(index[index_key]);
           }
           //Texture key
           if(v == 1){
@@ -264,37 +264,39 @@ int main()
           //Index key
           if(v == 0){
             int index_key = value - 1;
-            corner_2.push_back(index_key);
+            corner_2.push_back(index[index_key]);
           }
           //Texture key
           if(v == 1){
             int Texture_key = value - 1;
-            corner_2.push_back(Texture_key);
+            corner_2.push_back(texture[Texture_key]);
           }
           //Normal key
           if(v == 2){
             int Normal_key = value - 1;
-            corner_2.push_back(Normal_key);
+            corner_2.push_back(normal[Normal_key]);
           }
         }
         if(c == 2){ // Corner 3
            //Index key
           if(v == 0){
             int index_key = value - 1;
-            corner_3.push_back(index_key);
+            corner_3.push_back(index[index_key]);
           }
           //Texture key
           if(v == 1){
             int Texture_key = value - 1;
-            corner_3.push_back(Texture_key);
+            corner_3.push_back(texture[Texture_key]);
           }
           //Normal key
           if(v == 2){
             int Normal_key = value - 1;
-            corner_3.push_back(Normal_key);
+            corner_3.push_back(normal[Normal_key]);
           }
         }
-        // Triangle triangle = Triangle{corner_1, corner_2, corner_3};
+        // Triangle triangle01 = Triangle{Vector3{-1, 1, -2}, Vector3{-1, 1, -1}, Vector3{-1, -1, -2}};
+        Triangle triangle = Triangle{Vector3{corner_1[0],corner_1[1],corner_1[2]}, Vector3{corner_2[0],corner_2[1],corner_2[2]}, Vector3{corner_3[0],corner_3[1],corner_3[2]}};
+        triangles.push_back(triangle);
       }
     }
   }
