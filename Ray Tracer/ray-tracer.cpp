@@ -236,13 +236,14 @@ int main()
     }
   }
 
-  for (int t = 0; t < face.size(); t++){ // face[0] = the entire line
+  for (int t = 0; t < face.size(); t++){
+        vector<vector<float>> corner_1 = {};
+        vector<vector<float>> corner_2 = {};
+        vector<vector<float>> corner_3 = {}; // face[0] = the entire line
     for (int c = 0; c < face[t].size(); c++){ // face[0][0] = first corner
       for (int v = 0; v < face[t][c].size(); v++){ // face[0][0][0] = first value
         int value = face[t][c][v];
-        vector<float> corner_1 = {};
-        vector<float> corner_2 = {};
-        vector<float> corner_3 = {};
+        
         if(c == 0){ // Corner 1
           //Index key
           if(v == 0){
@@ -295,10 +296,10 @@ int main()
           }
         }
         // Triangle triangle01 = Triangle{Vector3{-1, 1, -2}, Vector3{-1, 1, -1}, Vector3{-1, -1, -2}};
-        Triangle triangle = Triangle{Vector3{corner_1[0],corner_1[1],corner_1[2]}, Vector3{corner_2[0],corner_2[1],corner_2[2]}, Vector3{corner_3[0],corner_3[1],corner_3[2]}};
-        triangles.push_back(triangle);
       }
     }
+    Triangle triangle = Triangle{Vector3{corner_1[0][0],corner_1[0][1],corner_1[0][2]}, Vector3{corner_2[0][0],corner_2[0][1],corner_2[0][2]}, Vector3{corner_3[0][0],corner_3[0][1],corner_3[0][2]}};
+    triangles.push_back(triangle);
   }
 
 
