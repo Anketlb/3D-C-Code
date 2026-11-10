@@ -137,7 +137,7 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
       Vector3 base_color = Vector3{255, 255, 255};
 
       // 1st is x Right+ to Left- , 2nd is y goes up+ or down-, 3rd is z Forward or Backward
-      Vector3 light_direction = Vector3{1, 1, 2}.normalize();
+      Vector3 light_direction = Vector3{.5, 1, .5}.normalize();
 
       Vector3 ambient = base_color * .1;
       Vector3 normal = p.normalize();
@@ -155,12 +155,12 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
       if (true)
       {
         Vector3 reflective_direction = direction - normal * 2 * normal.dot(direction);
-        reflective = trace_ray(collision_point, reflective_direction, bounces - 1) * .5;
+        reflective = trace_ray(collision_point + light_direction * .00001, reflective_direction, bounces - 1) * .5;
         diffuse *= .5;
         ambient *= .5;
       }
 
-      Vector3 _color = ambient + diffuse + reflective;
+      Vector3 _color = ambient + (diffuse) + reflective;
       color = _color;
     }
   }
@@ -307,6 +307,7 @@ int main()
   /// Loop over each line doing down
   for (int y = 0; y < h; y++)
   {
+    clog << "\rScanlines Remaining: " << (h - y) << ' ' << flush;
     /// While going down, loop over every pixel going right
     for (int x = 0; x < w; x++)
     {
@@ -338,6 +339,7 @@ int main()
       pixels[index + 2] = b;
     }
   }
+  clog << "\rDone.                          \n";
 
 
   
@@ -346,16 +348,3 @@ int main()
   stbi_write_png("image.png", w, h, 3, pixels, w * 3);
   return 0;
 }
-
-// vector<int> chest = {};
-//       // pencil << word[1];
-//       for (int i = 1; i < word.size(); i++)
-//       {
-//         vector<string> letter = split(word[i], '/');
-//         for (int j = 0; j < letter.size(); j++)
-//         {
-//           int a = stoi(letter[j]);
-//           chest.push_back(a);
-//         }
-//       }
-//       face.push_back(chest);
