@@ -152,13 +152,13 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
 
       Vector3 reflective = Vector3{0, 0, 0};
 
-      // if (true)
-      // {
-      //   Vector3 reflective_direction = direction - normal * 2 * normal.dot(direction);
-      //   reflective = trace_ray(collision_point, reflective_direction, bounces - 1) * .5;
-      //   diffuse *= .5;
-      //   ambient *= .5;
-      // }
+      if (true)
+      {
+        Vector3 reflective_direction = direction - normal * 2 * normal.dot(direction);
+        reflective = trace_ray(collision_point, reflective_direction, bounces - 1) * .5;
+        diffuse *= .5;
+        ambient *= .5;
+      }
 
       Vector3 _color = ambient + diffuse + reflective;
       color = _color;
@@ -173,7 +173,7 @@ int main()
   Vector3 camera_origin = Vector3{0, 0, 1}; // x, y, z
   Vector3 camera_look_at = Vector3{0, 0, 0};
   Vector3 camera_up = Vector3{0, 1, 0};
-  vector<string> book = readLines("TinyTri.obj");
+  vector<string> book = readLines("cubemove.obj");
   vector<vector<float>>index = {};
   vector<vector<float>> texture = {};
   vector<vector<float>> normal = {};
