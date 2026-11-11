@@ -161,7 +161,7 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
         ambient *= .5;
       }
 
-      Vector3 _color = ambient + (diffuse*.8) + reflective;
+      Vector3 _color = ambient + diffuse*.8 + reflective;
       color = _color;
     }
   }
@@ -174,7 +174,7 @@ int main()
   Vector3 camera_origin = Vector3{0, 0, 1}; // x, y, z
   Vector3 camera_look_at = Vector3{0, 0, 0};
   Vector3 camera_up = Vector3{0, 1, 0};
-  vector<string> book = readLines("cubemove.obj");
+  vector<string> book = readLines("NinjaSniperBase.obj");
   vector<Vector3> index = {};
   vector<Vector3> texture = {};
   vector<Vector3> normal = {};
@@ -273,7 +273,7 @@ int main()
         // Triangle triangle01 = Triangle{Vector3{-1, 1, -2}, Vector3{-1, 1, -1}, Vector3{-1, -1, -2}};
       }
     }
-    Triangle triangle = Triangle{Vector3{corner_1[0].x,corner_1[0].y,corner_1[0].y}, Vector3{corner_2[0].x,corner_2[0].y,corner_2[0].z}, Vector3{corner_3[0].x,corner_3[0].y,corner_3[0].z}};
+    Triangle triangle = Triangle{Vector3{corner_1[0].x,corner_1[0].y,corner_1[0].z}, Vector3{corner_2[0].x,corner_2[0].y,corner_2[0].z}, Vector3{corner_3[0].x,corner_3[0].y,corner_3[0].z}};
     triangles.push_back(triangle);
   }
 
