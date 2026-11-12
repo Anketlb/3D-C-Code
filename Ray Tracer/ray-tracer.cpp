@@ -28,7 +28,7 @@ unsigned char pixels[w * h * 3];
 // Triangle triangle01 = Triangle{Vector3{-1, 1, -2}, Vector3{-1, 1, -1}, Vector3{-1, -1, -2}};
 vector<Triangle> triangles = {};
 
-Vector3 background_color = Vector3{255, 255, 255};
+Vector3 background_color = Vector3{100, 100, 100};
 
 float trace_ray_distance(Vector3 origin, Vector3 direction)
 {
@@ -134,18 +134,18 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
       // 0 * u + 0 * v + 0 * a
       closest_t = t;
 
-      Vector3 base_color = Vector3{255, 255, 255};
+      Vector3 base_color = Vector3{100, 255, 50}; // model color
 
       // 1st is x Right+ to Left- , 2nd is y goes up+ or down-, 3rd is z Forward or Backward
       Vector3 light_direction = Vector3{.5, 1, .5}.normalize();
 
-      Vector3 ambient = base_color * .1;
+      Vector3 ambient = base_color * .1; // if no light then the amount of color you get if it was even.
       Vector3 normal = p.normalize();
 
       // float strength = max(0.f, light_direction.dot(normal));
       float strength = abs(light_direction.dot(normal));
 
-      Vector3 diffuse = base_color * strength;
+      Vector3 diffuse = base_color * strength; // how to makes shadows
       if (trace_ray_distance(collision_point + light_direction * .00001, light_direction) != INFINITY)
       {
         diffuse = Vector3{0, 0, 0};
@@ -161,7 +161,7 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
         ambient *= .5;
       }
 
-      Vector3 _color = ambient + diffuse + reflective;
+      Vector3 _color = (ambient*u) + diffuse + reflective;
       if(_color.x > 255.0){
         _color.x = 255.0;
       }
@@ -285,7 +285,6 @@ int main()
     Triangle triangle = Triangle{Vector3{corner_1[0].x,corner_1[0].y,corner_1[0].z}, Vector3{corner_2[0].x,corner_2[0].y,corner_2[0].z}, Vector3{corner_3[0].x,corner_3[0].y,corner_3[0].z}};
     triangles.push_back(triangle);
   }
-
 
 
   /// Loop over each line doing down
