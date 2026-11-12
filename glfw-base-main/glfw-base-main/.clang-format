@@ -1,0 +1,6 @@
+---
+BasedOnStyle: Microsoft
+
+MaxEmptyLinesToKeep: 1
+SortIncludes: Never
+

@@ -6,6 +6,7 @@
             "args": [
                 "-g",
                 "ray-tracer.cpp",
+                "Vector3.cpp",
                 "-o",
                 "ray-tracer.exe"
             ]
@@ -28,7 +29,8 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${file}",
+                "${fileDirname}\\ray-tracer.cpp",
+                "${fileDirname}\\Vector3.cpp",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe"
             ],

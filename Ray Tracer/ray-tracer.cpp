@@ -156,12 +156,21 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
       if (true)
       {
         Vector3 reflective_direction = direction - normal * 2 * normal.dot(direction);
-        reflective = trace_ray(collision_point + light_direction * .00001, reflective_direction, bounces - 1) * .5;
+        reflective = trace_ray(collision_point + reflective_direction * .00001, reflective_direction, bounces - 1) * .5;
         diffuse *= .5;
         ambient *= .5;
       }
 
-      Vector3 _color = ambient + diffuse*.8 + reflective;
+      Vector3 _color = ambient + diffuse + reflective;
+      if(_color.x > 255.0){
+        _color.x = 255.0;
+      }
+      if(_color.y > 255.0){
+        _color.y = 255.0;
+      }
+      if(_color.z > 255.0){
+        _color.z = 255.0;
+      }
       color = _color;
     }
   }
@@ -174,7 +183,7 @@ int main()
   Vector3 camera_origin = Vector3{0, 0, 1}; // x, y, z
   Vector3 camera_look_at = Vector3{0, 0, 0};
   Vector3 camera_up = Vector3{0, 1, 0};
-  vector<string> book = readLines("NinjaSniperBase.obj");
+  vector<string> book = readLines("cubemove.obj");
   vector<Vector3> index = {};
   vector<Vector3> texture = {};
   vector<Vector3> normal = {};
@@ -286,6 +295,12 @@ int main()
     /// While going down, loop over every pixel going right
     for (int x = 0; x < w; x++)
     {
+      // if(x == 226 && y == 504){
+      //   cout << "Problem";
+      // }
+      // else{
+      //   continue;
+      // }
       /// Figure out our index in the 1d array of pixels
       int index = y * w * 3 + x * 3;
 
