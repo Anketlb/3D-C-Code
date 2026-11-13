@@ -142,8 +142,8 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
       Vector3 ambient = base_color * .1; // if no light then the amount of color you get if it was even.
       Vector3 normal = p.normalize();
 
-      // float strength = max(0.f, light_direction.dot(normal));
-      float strength = abs(light_direction.dot(normal));
+      float strength = max(0.f, light_direction.dot(normal));
+      //float strength = abs(light_direction.dot(normal));
 
       Vector3 diffuse = base_color * strength; // how to makes shadows
       if (trace_ray_distance(collision_point + light_direction * .00001, light_direction) != INFINITY)
@@ -161,7 +161,12 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
         ambient *= .5;
       }
 
-      Vector3 _color = (ambient*u) + diffuse + reflective;
+      Vector3 _color = (ambient) + (diffuse) + (reflective);
+      // u == first corner, v == 2, a == 3rd corner
+      // Ambient + u = dusty? // Diffuse + u = Blocky? // reflective + u == retro?
+      // Ambient + v = fabric? // Diffuse + v = blocky scales // reflective + v = both?
+      // Ambient + a = tiled // Diffuse + a = scales // reflective + a = ceramic?
+      
       if(_color.x > 255.0){
         _color.x = 255.0;
       }
@@ -183,7 +188,7 @@ int main()
   Vector3 camera_origin = Vector3{0, 0, 1}; // x, y, z
   Vector3 camera_look_at = Vector3{0, 0, 0};
   Vector3 camera_up = Vector3{0, 1, 0};
-  vector<string> book = readLines("cubemove.obj");
+  vector<string> book = readLines("orb.obj");
   vector<Vector3> index = {};
   vector<Vector3> texture = {};
   vector<Vector3> normal = {};
@@ -282,7 +287,10 @@ int main()
         // Triangle triangle01 = Triangle{Vector3{-1, 1, -2}, Vector3{-1, 1, -1}, Vector3{-1, -1, -2}};
       }
     }
-    Triangle triangle = Triangle{Vector3{corner_1[0].x,corner_1[0].y,corner_1[0].z}, Vector3{corner_2[0].x,corner_2[0].y,corner_2[0].z}, Vector3{corner_3[0].x,corner_3[0].y,corner_3[0].z}};
+    Triangle triangle = Triangle{
+      Vector3{corner_1[0].x,corner_1[0].y,corner_1[0].z}, Vector3{corner_2[0].x,corner_2[0].y,corner_2[0].z}, Vector3{corner_3[0].x,corner_3[0].y,corner_3[0].z},
+      Vector3{corner_1[2].x,corner_1[2].y,corner_1[2].z}, Vector3{corner_2[2].x,corner_2[2].y,corner_2[2].z}, Vector3{corner_3[2].x,corner_3[2].y,corner_3[2].z},
+      Vector3{corner_1[1].x,corner_1[1].y}, Vector3{corner_2[1].x,corner_2[1].y}, Vector3{corner_3[1].x,corner_3[1].y}};
     triangles.push_back(triangle);
   }
 

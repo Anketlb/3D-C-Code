@@ -6,6 +6,8 @@
 struct Triangle
 {
   Vector3 one, two, three;
+  Vector3 uno, dos, tres;
+  Vector3 un, dune, twa;
 };
 
 #endif
