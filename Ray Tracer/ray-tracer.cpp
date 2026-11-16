@@ -115,8 +115,14 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
     float area_three = minus_one.cross(minus_two).length() / 2;
 
     float u = area_one / triangle_area;
+    Vector3 un1 = triangle.un;
     float v = area_two / triangle_area;
+    Vector3 un2 = triangle.dune;
     float a = area_three / triangle_area;
+    Vector3 un3 = triangle.twa;
+
+    Vector3 ted = (un1*u) + (un2 * v) + (un3 * a);
+    
 
     float sum = u + v + a;
 
@@ -140,7 +146,8 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
       Vector3 light_direction = Vector3{.5, 1, .5}.normalize();
 
       Vector3 ambient = base_color * .1; // if no light then the amount of color you get if it was even.
-      Vector3 normal = p.normalize();
+      Vector3 normal = ted.normalize();
+      // Vector3 normal = p.normalize();
 
       float strength = max(0.f, light_direction.dot(normal));
       //float strength = abs(light_direction.dot(normal));
@@ -188,7 +195,7 @@ int main()
   Vector3 camera_origin = Vector3{0, 0, 1}; // x, y, z
   Vector3 camera_look_at = Vector3{0, 0, 0};
   Vector3 camera_up = Vector3{0, 1, 0};
-  vector<string> book = readLines("orb.obj");
+  vector<string> book = readLines("cubemove.obj");
   vector<Vector3> index = {};
   vector<Vector3> texture = {};
   vector<Vector3> normal = {};

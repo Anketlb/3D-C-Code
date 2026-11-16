@@ -5,9 +5,9 @@
 
 struct Triangle
 {
-  Vector3 one, two, three;
-  Vector3 uno, dos, tres;
-  Vector3 un, dune, twa;
+  Vector3 one, two, three; //position
+  Vector3 uno, dos, tres; //texture
+  Vector3 un, dune, twa; //normal
 };
 
 #endif
