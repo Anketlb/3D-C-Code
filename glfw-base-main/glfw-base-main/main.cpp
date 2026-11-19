@@ -3,47 +3,15 @@
 #include <compile_shader_program.h>
 #include <iostream>
 #include <cmath>
+#include "file_util.h"
+#include "triangleVertices.h"
+#include "roomVertices.h"
 
 using namespace std;
 
-const char *vertexShaderSource = R"(#version 330 core
+const char *vertexShaderSource = load_file("vertex.glsl");
 
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec2 aUV;
-layout (location = 2) in vec3 aNormal;
-
-uniform mat4 modelToWorld; // model
-uniform mat4 worldToCamera; // view
-uniform mat4 projection;
-uniform mat4 toClippingSpace; // clip
-
-out vec3 pos;
-out vec2 uv;
-out vec3 normal;
-
-
-void main()
-{
-   gl_Position = toClippingSpace * projection * worldToCamera * modelToWorld * vec4(aPos, 1.0);
-   pos = aPos;
-   uv = aUV;
-   normal = aNormal;
-}
-)";
-
-const char *fragmentShaderTealSource = R"(#version 330 core
-
-in vec3 pos;
-in vec3 uv;
-in vec3 normal;
-
-out vec4 FragColor;
-
-void main()
-{
-   FragColor = vec4(pos.x, pos.y, 0.0f, 1.0f);
-}
-)";
+const char *fragmentShaderTealSource = load_file("fragment.glsl");
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
@@ -82,23 +50,30 @@ int main()
 
     unsigned int shaderProgramTriangle = compileShaderProgram(vertexShaderSource, fragmentShaderTealSource);
 
-    float triangleVertices[] = {
-        /*position*/ -.9f, -.9f, -20.0f, /*uv*/ 0,0, /*normals*/ 0,0,1, // Vertex one
-        /*position*/.9f,  -.9f, -20.0f,  /*uv*/ 0,0, /*normals*/ 0,0,1, // Vertex two
-        /*position*/.9f,  .9f,  -20.0f,  /*uv*/ 0,0, /*normals*/ 0,0,1, // Vertex three
-
-        // Tri 2
-        /*position*/-.9f, -.9f, -20.0f,  /*uv*/ 0,0, /*normals*/ 0,0,1, // Vertex one
-        /*position*/-.9f,  .9f, -20.0f,  /*uv*/ 0,0, /*normals*/ 0,0,1, // Vertex two
-        /*position*/.9f,  .9f,  -20.0f,  /*uv*/ 0,0, /*normals*/ 0,0,1, // Vertex three
-    };
-
+    //first obj
     unsigned int VAO_Triangle, VBO_Triangle;
     glGenVertexArrays(1, &VAO_Triangle);
     glGenBuffers(1, &VBO_Triangle);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_Triangle);
     glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices), triangleVertices, GL_STATIC_DRAW);
     glBindVertexArray(VAO_Triangle);
+    //positions
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+    //uvs
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3*sizeof(float)));
+    glEnableVertexAttribArray(1);
+    //normals
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(5*sizeof(float)));
+    glEnableVertexAttribArray(2);
+    
+    //second obj
+    unsigned int VAO_Triangle_room, VBO_Triangle_room;
+    glGenVertexArrays(1, &VAO_Triangle_room);
+    glGenBuffers(1, &VBO_Triangle_room);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Triangle);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(roomVertices), roomVertices, GL_STATIC_DRAW);
+    glBindVertexArray(VAO_Triangle_room);
     //positions
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
@@ -126,9 +101,17 @@ int main()
     float modelToWorld[] = {
         1, 0, 0, 0, //
         0, 1, 0, 0, //
-        0, 0, 1, 0, //
+        0, 0, 1, -20, //
         0, 0, 0, 1, //
     };
+
+    float modelToWorld_room[] = {
+        30, 0, 0, 0, //
+        0, 1, 0, 0, //
+        0, 0, 30, 0, //
+        0, 0, 0, 1, //
+    };
+
     float worldToCamera[] = {
         1, 0, 0, 0, //
         0, 1, 0, 0, //
@@ -148,11 +131,90 @@ int main()
         0, 0, 0, 1, //
     };
 
+
+    glEnable(GL_DEPTH_TEST);
+
+    float camera_right_x = 1;
+    float camera_right_z = 0;
+
+    float camera_forward_x = 0;
+    float camera_forward_z = -1;
+
+    float camera_x = 0;
+    float camera_z = 0;
+
+    float speed = .01f;
+    float rotation = 0;
+
+    double mouse_x = 0;
+    double mouse_y = 0;
+
+    bool last_hover = false;
+
     while (!glfwWindowShouldClose(window))
     {
-        glClearColor(0.f, 0.f, 0.f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
 
+        if(glfwGetWindowAttrib(window, GLFW_HOVERED)){
+            double x;
+            double y;
+            glfwGetCursorPos(window, &x, &y);
+            if(last_hover){
+                //rotation
+                double delta_x = x - mouse_x;
+                double delta_y = y - mouse_y;
+
+                rotation += delta_x * .01f;
+            }
+            else{
+
+            }
+            last_hover = true;
+            mouse_x = x;
+            mouse_y = y;
+        }
+        else{
+            last_hover = false;
+        }
+
+        float c = cos(rotation);
+        float s = sin(rotation);
+
+        camera_right_x = c;
+        camera_right_z = -s;
+
+        camera_forward_x = -s;
+        camera_forward_z = -c;
+
+        if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
+            camera_x -= camera_right_x * speed;
+            camera_z -= camera_right_z * speed;
+        }
+        if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
+             camera_x += camera_right_x * speed;
+             camera_z += camera_right_z * speed;
+        }
+        if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
+             camera_x += camera_forward_x* speed;
+             camera_z += camera_forward_z* speed;
+        }
+        if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
+            camera_x -= camera_forward_x* speed;
+            camera_z -= camera_forward_z* speed;
+        }
+
+        worldToCamera[3] = -(c*camera_x-s*camera_z);
+        worldToCamera[11] = -(s*camera_x-c*camera_z);
+        
+        worldToCamera[0] = c;
+        worldToCamera[2] = -s;
+
+        worldToCamera[8] = s;
+        worldToCamera[10] = c;
+
+        glClearColor(0.f, 0.f, 0.f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        //first obj
         glUseProgram(shaderProgramTriangle);
 
         glUniformMatrix4fv(modelToWorldPointer,1,GL_TRUE, modelToWorld);
@@ -162,6 +224,17 @@ int main()
 
         glBindVertexArray(VAO_Triangle);
         glDrawArrays(GL_TRIANGLES, 0, 6);
+        
+        //second obj
+        glUseProgram(shaderProgramTriangle);
+
+        glUniformMatrix4fv(modelToWorldPointer,1,GL_TRUE, modelToWorld_room);
+        glUniformMatrix4fv(worldToCameraPointer,1,GL_TRUE, worldToCamera);
+        glUniformMatrix4fv(ProjectionPointer,1,GL_TRUE, projection);
+        glUniformMatrix4fv(toClippingSpacePointer,1,GL_TRUE, toClippingSpace);
+
+        glBindVertexArray(VAO_Triangle);
+        glDrawArrays(GL_TRIANGLES, 0, 24);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
