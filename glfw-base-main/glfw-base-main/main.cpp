@@ -143,7 +143,7 @@ int main()
     float camera_x = 0;
     float camera_z = 0;
 
-    float speed = .01f;
+    float speed = .1f;
     float rotation = 0;
 
     double mouse_x = 0;
@@ -203,7 +203,7 @@ int main()
         }
 
         worldToCamera[3] = -(c*camera_x-s*camera_z);
-        worldToCamera[11] = -(s*camera_x-c*camera_z);
+        worldToCamera[11] = -(s*camera_x+c*camera_z);
         
         worldToCamera[0] = c;
         worldToCamera[2] = -s;
