@@ -116,13 +116,16 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
 
     float u = area_one / triangle_area;
     Vector3 un1 = triangle.un;
+    Vector3 uv1 = triangle.uno;
     float v = area_two / triangle_area;
     Vector3 un2 = triangle.dune;
+    Vector3 uv2 = triangle.dos;
     float a = area_three / triangle_area;
     Vector3 un3 = triangle.twa;
+    Vector3 uv3 = triangle.tres;
 
     Vector3 ted = (un1*u) + (un2 * v) + (un3 * a);
-    
+    Vector3 steve = (uv1*u) + (uv2 * v) + (uv3 * a);
 
     float sum = u + v + a;
 
@@ -146,14 +149,14 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
       Vector3 light_direction = Vector3{.5, 1, .5}.normalize();
 
       Vector3 ambient = base_color * .1; // if no light then the amount of color you get if it was even.
+      // Vector3 ambient = (base_color * ted.x)*.3 + (base_color * ted.y)*.3 + (base_color * ted.z)*.3; // if no light then the amount of color you get if it was even.
       Vector3 normal = ted.normalize();
-      // Vector3 normal = p.normalize();
 
       float strength = max(0.f, light_direction.dot(normal));
-      //float strength = abs(light_direction.dot(normal));
+      // float strength = abs(light_direction.dot(normal));
 
       Vector3 diffuse = base_color * strength; // how to makes shadows
-      if (trace_ray_distance(collision_point + light_direction * .00001, light_direction) != INFINITY)
+      if (trace_ray_distance(collision_point + light_direction * .5, light_direction) != INFINITY)
       {
         diffuse = Vector3{0, 0, 0};
       }
@@ -164,11 +167,14 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
       {
         Vector3 reflective_direction = direction - normal * 2 * normal.dot(direction);
         reflective = trace_ray(collision_point + reflective_direction * .00001, reflective_direction, bounces - 1) * .5;
-        diffuse *= .5;
-        ambient *= .5;
+        // diffuse *= .5;
+        // ambient *= .5;
       }
 
+      
+      Vector3 Acolor = Vector3{255, 255, 255};
       Vector3 _color = (ambient) + (diffuse) + (reflective);
+      // Vector3 _color = ambient + diffuse;
       // u == first corner, v == 2, a == 3rd corner
       // Ambient + u = dusty? // Diffuse + u = Blocky? // reflective + u == retro?
       // Ambient + v = fabric? // Diffuse + v = blocky scales // reflective + v = both?
@@ -195,7 +201,7 @@ int main()
   Vector3 camera_origin = Vector3{0, 0, 1}; // x, y, z
   Vector3 camera_look_at = Vector3{0, 0, 0};
   Vector3 camera_up = Vector3{0, 1, 0};
-  vector<string> book = readLines("cubemove.obj");
+  vector<string> book = readLines("orb.obj");
   vector<Vector3> index = {};
   vector<Vector3> texture = {};
   vector<Vector3> normal = {};
@@ -296,8 +302,8 @@ int main()
     }
     Triangle triangle = Triangle{
       Vector3{corner_1[0].x,corner_1[0].y,corner_1[0].z}, Vector3{corner_2[0].x,corner_2[0].y,corner_2[0].z}, Vector3{corner_3[0].x,corner_3[0].y,corner_3[0].z},
-      Vector3{corner_1[2].x,corner_1[2].y,corner_1[2].z}, Vector3{corner_2[2].x,corner_2[2].y,corner_2[2].z}, Vector3{corner_3[2].x,corner_3[2].y,corner_3[2].z},
-      Vector3{corner_1[1].x,corner_1[1].y}, Vector3{corner_2[1].x,corner_2[1].y}, Vector3{corner_3[1].x,corner_3[1].y}};
+      Vector3{corner_1[1].x,corner_1[1].y}, Vector3{corner_2[1].x,corner_2[1].y}, Vector3{corner_3[1].x,corner_3[1].y},
+      Vector3{corner_1[2].x,corner_1[2].y,corner_1[2].z}, Vector3{corner_2[2].x,corner_2[2].y,corner_2[2].z}, Vector3{corner_3[2].x,corner_3[2].y,corner_3[2].z}};
     triangles.push_back(triangle);
   }
 
@@ -336,7 +342,6 @@ int main()
       r = color.x;
       g = color.y;
       b = color.z;
-
       /// Assign the r, g, and b values to the pixel at index
       pixels[index] = r;
       pixels[index + 1] = g;
