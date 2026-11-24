@@ -153,6 +153,7 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
       Vector3 normal = ted.normalize();
 
       float strength = max(0.f, light_direction.dot(normal));
+      float reflective_index = 2.4/1.000293;
       // float strength = abs(light_direction.dot(normal));
 
       Vector3 diffuse = base_color * strength; // how to makes shadows
@@ -162,6 +163,12 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
       }
 
       Vector3 reflective = Vector3{0, 0, 0};
+      Vector3 negNormal = normal *= -1;
+
+      //r = reflective_index * light_direction;
+      
+      // Vector3 c = negNormal * light_direction;
+      // Vector3 c = negNormal.dot(light_direction);
 
       if (true)
       {
