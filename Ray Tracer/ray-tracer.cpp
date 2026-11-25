@@ -5,6 +5,7 @@
 /// Uncomment these lines if you want to debug using couts
 #include <iostream>
 #include <vector>
+#include <cmath>
 #include <algorithm>
 #include "Vector3.hpp"
 #include "Triangle.hpp"
@@ -124,8 +125,8 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
     Vector3 un3 = triangle.twa;
     Vector3 uv3 = triangle.tres;
 
-    Vector3 ted = (un1*u) + (un2 * v) + (un3 * a);
-    Vector3 steve = (uv1*u) + (uv2 * v) + (uv3 * a);
+    Vector3 ted = (un1 * u) + (un2 * v) + (un3 * a);
+    Vector3 steve = (uv1 * u) + (uv2 * v) + (uv3 * a);
 
     float sum = u + v + a;
 
@@ -153,7 +154,7 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
       Vector3 normal = ted.normalize();
 
       float strength = max(0.f, light_direction.dot(normal));
-      float reflective_index = 2.4/1.000293;
+
       // float strength = abs(light_direction.dot(normal));
 
       Vector3 diffuse = base_color * strength; // how to makes shadows
@@ -163,37 +164,72 @@ Vector3 trace_ray(Vector3 origin, Vector3 direction, int bounces = 2)
       }
 
       Vector3 reflective = Vector3{0, 0, 0};
-      Vector3 negNormal = normal *= -1;
+      Vector3 refraction = Vector3{0, 0, 0};
+      Vector3 negNormal = normal * -1;
 
-      //r = reflective_index * light_direction;
-      
-      // Vector3 c = negNormal * light_direction;
-      // Vector3 c = negNormal.dot(light_direction);
+      float rout = 2.4 / 1.000293;
+      float rin = 1.000293 / 2.4;
 
       if (true)
       {
         Vector3 reflective_direction = direction - normal * 2 * normal.dot(direction);
-        reflective = trace_ray(collision_point + reflective_direction * .00001, reflective_direction, bounces - 1) * .5;
-        // diffuse *= .5;
-        // ambient *= .5;
+
+        if (normal.dot(direction) < 0)
+        {
+          float c = negNormal.dot(direction);
+          float rc = rin * c;
+          float cos2 = sqrt(1 - pow(rin, 2) * (1 - pow(c, 2)));
+          float sint = sqrt(1 - pow(c, 2));
+          Vector3 refraction_direction = (direction * rin) + (normal * (rc - cos2));
+          if (rin * sint > 1.0)
+          {
+            reflective = trace_ray(collision_point + reflective_direction * .00001, reflective_direction, bounces - 1) * .5;
+          }
+          else
+          {
+            refraction = trace_ray(collision_point + refraction_direction * .00001, refraction_direction, bounces - 1) * .5;
+          }
+        }
+        else
+        {
+          float c = normal.dot(direction);
+          float rc = rout * c;
+          float sint = sqrt(1 - pow(c, 2));
+          
+          if (rout * sint > 1.0)
+          {
+            reflective = trace_ray(collision_point + reflective_direction * .00001, reflective_direction, bounces - 1) * .5;
+          }
+          else
+          {
+            float cos2 = sqrt(1 - pow(rout, 2) * (1 - pow(c, 2)));
+            Vector3 refraction_direction = (direction * rout) + (negNormal * (rc - cos2));
+            refraction = trace_ray(collision_point + refraction_direction * .00001, refraction_direction, bounces - 1) * .5;
+          }
+        }
+
+        diffuse *= .5;
+        ambient *= .5;
       }
 
-      
       Vector3 Acolor = Vector3{255, 255, 255};
-      Vector3 _color = (ambient) + (diffuse) + (reflective);
+      Vector3 _color = (ambient) + (diffuse) + (reflective) + refraction;
       // Vector3 _color = ambient + diffuse;
       // u == first corner, v == 2, a == 3rd corner
       // Ambient + u = dusty? // Diffuse + u = Blocky? // reflective + u == retro?
       // Ambient + v = fabric? // Diffuse + v = blocky scales // reflective + v = both?
       // Ambient + a = tiled // Diffuse + a = scales // reflective + a = ceramic?
-      
-      if(_color.x > 255.0){
+
+      if (_color.x > 255.0)
+      {
         _color.x = 255.0;
       }
-      if(_color.y > 255.0){
+      if (_color.y > 255.0)
+      {
         _color.y = 255.0;
       }
-      if(_color.z > 255.0){
+      if (_color.z > 255.0)
+      {
         _color.z = 255.0;
       }
       color = _color;
@@ -213,36 +249,41 @@ int main()
   vector<Vector3> texture = {};
   vector<Vector3> normal = {};
   vector<vector<vector<int>>> face = {};
-  
+
   // iterators are neat: we can go through file
-  for (auto scan = book.begin(); scan != book.end(); ++scan){// scan through the book one line at a time
+  for (auto scan = book.begin(); scan != book.end(); ++scan)
+  { // scan through the book one line at a time
     // vector<string> word = split(*scan, ' '); // split what you see into single words by spaces
     stringstream peasant(*scan);
     string torch;
     peasant >> torch;
-    if (torch == "v"){
+    if (torch == "v")
+    {
       Vector3 chest; // set up temp vector to shove into real vector
       peasant >> chest.x >> chest.y >> chest.z;
       index.push_back(chest); // push Temp Vector into actual Vector
     }
     if (torch == "vn")
-    {                            // find every word that starts with vn
+    {                // find every word that starts with vn
       Vector3 chest; // set up temp vector to shove into real vector
       peasant >> chest.x >> chest.y >> chest.z;
       normal.push_back(chest); // push Temp Vector into actual Vector
     }
-    if (torch == "vt"){  // find every word that starts with vt
+    if (torch == "vt")
+    {                // find every word that starts with vt
       Vector3 chest; // set up temp vector to shove into real vector
       peasant >> chest.x >> chest.y >> chest.z;
       texture.push_back(chest); // push Temp Vector into actual Vector
     }
-    if (torch == "f"){
+    if (torch == "f")
+    {
       vector<vector<int>> chest;
       string lit;
-      for(int i = 0; i < 3; i++){
+      for (int i = 0; i < 3; i++)
+      {
         vector<int> hand;
         peasant >> lit;
-        vector<string> ash = split(lit,'/');
+        vector<string> ash = split(lit, '/');
         int vkey = stoi(ash[0]) - 1;
         int vtkey = stoi(ash[1]) - 1;
         int vnkey = stoi(ash[2]) - 1;
@@ -255,52 +296,67 @@ int main()
     }
   }
 
-  for (int t = 0; t < face.size(); t++){
-        vector<Vector3> corner_1 = {};
-        vector<Vector3> corner_2 = {};
-        vector<Vector3> corner_3 = {}; // face[0] = the entire line
-    for (int c = 0; c < face[t].size(); c++){ // face[0][0] = first corner
-      for (int v = 0; v < face[t][c].size(); v++){ // face[0][0][0] = first value
+  for (int t = 0; t < face.size(); t++)
+  {
+    vector<Vector3> corner_1 = {};
+    vector<Vector3> corner_2 = {};
+    vector<Vector3> corner_3 = {}; // face[0] = the entire line
+    for (int c = 0; c < face[t].size(); c++)
+    { // face[0][0] = first corner
+      for (int v = 0; v < face[t][c].size(); v++)
+      { // face[0][0][0] = first value
         int value = face[t][c][v];
-        if(c == 0){ // Corner 1
-          //Index key
-          if(v == 0){
+        if (c == 0)
+        { // Corner 1
+          // Index key
+          if (v == 0)
+          {
             corner_1.push_back(index[value]);
           }
-          //Texture key
-          if(v == 1){
+          // Texture key
+          if (v == 1)
+          {
             corner_1.push_back(texture[value]);
           }
-          //Normal key
-          if(v == 2){
+          // Normal key
+          if (v == 2)
+          {
             corner_1.push_back(normal[value]);
           }
         }
-        if(c == 1){ // Corner 2
-         //Index key
-          if(v == 0){
+        if (c == 1)
+        { // Corner 2
+          // Index key
+          if (v == 0)
+          {
             corner_2.push_back(index[value]);
           }
-          //Texture key
-          if(v == 1){
+          // Texture key
+          if (v == 1)
+          {
             corner_2.push_back(texture[value]);
           }
-          //Normal key
-          if(v == 2){
+          // Normal key
+          if (v == 2)
+          {
             corner_2.push_back(normal[value]);
           }
         }
-        if(c == 2){ // Corner 3
-           //Index key
-          if(v == 0){
+        if (c == 2)
+        { // Corner 3
+          // Index key
+          if (v == 0)
+          {
             corner_3.push_back(index[value]);
           }
-          //Texture key
-          if(v == 1){
+          // Texture key
+          if (v == 1)
+          {
             corner_3.push_back(texture[value]);
           }
-          //Normal key
-          if(v == 2){
+          // Normal key
+          if (v == 2)
+          {
             corner_3.push_back(normal[value]);
           }
         }
@@ -308,12 +364,11 @@ int main()
       }
     }
     Triangle triangle = Triangle{
-      Vector3{corner_1[0].x,corner_1[0].y,corner_1[0].z}, Vector3{corner_2[0].x,corner_2[0].y,corner_2[0].z}, Vector3{corner_3[0].x,corner_3[0].y,corner_3[0].z},
-      Vector3{corner_1[1].x,corner_1[1].y}, Vector3{corner_2[1].x,corner_2[1].y}, Vector3{corner_3[1].x,corner_3[1].y},
-      Vector3{corner_1[2].x,corner_1[2].y,corner_1[2].z}, Vector3{corner_2[2].x,corner_2[2].y,corner_2[2].z}, Vector3{corner_3[2].x,corner_3[2].y,corner_3[2].z}};
+        Vector3{corner_1[0].x, corner_1[0].y, corner_1[0].z}, Vector3{corner_2[0].x, corner_2[0].y, corner_2[0].z}, Vector3{corner_3[0].x, corner_3[0].y, corner_3[0].z},
+        Vector3{corner_1[1].x, corner_1[1].y}, Vector3{corner_2[1].x, corner_2[1].y}, Vector3{corner_3[1].x, corner_3[1].y},
+        Vector3{corner_1[2].x, corner_1[2].y, corner_1[2].z}, Vector3{corner_2[2].x, corner_2[2].y, corner_2[2].z}, Vector3{corner_3[2].x, corner_3[2].y, corner_3[2].z}};
     triangles.push_back(triangle);
   }
-
 
   /// Loop over each line doing down
   for (int y = 0; y < h; y++)
@@ -356,9 +411,6 @@ int main()
     }
   }
   clog << "\rDone.                          \n";
-
-
-  
 
   /// Write the final image as a png
   stbi_write_png("image.png", w, h, 3, pixels, w * 3);
